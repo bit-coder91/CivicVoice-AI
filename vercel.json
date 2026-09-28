@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "buildCommand": "echo 'No build required for static HTML/JS frontend'",
+  "outputDirectory": "frontend",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://<YOUR-SPRING-BOOT-PRODUCTION-URL>/api/:path*"
+    },
+    {
+      "source": "/nlp/:path*",
+      "destination": "https://<YOUR-FLASK-PRODUCTION-URL>/:path*"
+    }
+  ]
+}

@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicVoice AI | Smart Public Grievance System</title>
+    <meta name="description" content="AI-assisted civic grievance reporting and management platform for smarter city governance.">
+    <meta name="theme-color" content="#1D0A69">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        (function() {
+            try {
+                const stored = localStorage.getItem('cv-theme');
+                const pref = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', stored || pref);
+            } catch (e) {}
+        })();
+    </script>
+</head>
+<body class="no-transition">
+
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <div id="view-landing" class="view landing">
+        <nav id="landing-nav" class="landing-nav">
+            <a href="#" class="nav-brand">CivicVoice <span>AI</span></a>
+            <div class="nav-links">
+                <button data-scrollto="#how-it-works">How it Works</button>
+                <button data-scrollto="#ai-insights">Insights</button>
+                <button data-scrollto="#civic-impact">Impact</button>
+            </div>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-toggle-landing" aria-label="Toggle Theme">
+                    <svg id="icon-sun-landing" class="hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    <svg id="icon-moon-landing" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                </button>
+                <button class="btn btn-outline-white btn-sm" onclick="CivicApp.showView('submit')" style="color:var(--text-primary);border-color:var(--border-default)">Report Issue</button>
+                <button class="btn btn-primary btn-sm" onclick="CivicApp.showView('dashboard')">Admin Dashboard</button>
+            </div>
+        </nav>
+
+        <header class="hero">
+            <div class="hero-eyebrow">
+                <span class="badge-dot" style="background:var(--color-brand)"></span>
+                AI-Powered Civic Tech
+            </div>
+            <h1 class="hero-title">Smarter City Governance with <span class="accent">Explainable AI</span></h1>
+            <p class="hero-desc">CivicVoice AI is an intelligent public grievance management system that uses natural language processing to instantly categorize, prioritize, and route citizen complaints to the right departments.</p>
+            <div class="hero-ctas">
+                <button class="btn btn-primary btn-lg" onclick="CivicApp.showView('submit')">Report an Issue Now</button>
+                <button class="btn btn-secondary btn-lg" onclick="CivicApp.showView('dashboard')">Explore Dashboard</button>
+            </div>
+            
+            <div class="hero-trust">
+                <div class="trust-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Instant Routing</div>
+                <div class="trust-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Transparent AI</div>
+                <div class="trust-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Secure & Reliable</div>
+            </div>
+        </header>
+        
+        <div class="stats-strip">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">Instant</div>
+                    <div class="stat-label">Classification Time</div>
+                    <div class="stat-note">Powered by NLP</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">100%</div>
+                    <div class="stat-label">AI Transparency</div>
+                    <div class="stat-note">Explainable keywords</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">Automated</div>
+                    <div class="stat-label">Issue Routing</div>
+                    <div class="stat-note">To specific departments</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">24/7</div>
+                    <div class="stat-label">Availability</div>
+                    <div class="stat-note">Always online</div>
+                </div>
+            </div>
+        </div>
+
+        <section class="section" id="how-it-works">
+            <div class="section-header">
+                <div class="section-eyebrow">The Journey</div>
+                <h2 class="section-title">How CivicVoice Helps</h2>
+                <p class="section-sub">From submission to resolution, the pipeline ensures transparency, speed, and accuracy.</p>
+            </div>
+            
+            <div class="journey-steps">
+                <div class="journey-step">
+                    <div class="journey-num">1</div>
+                    <div>
+                        <h3 class="journey-title">Submission</h3>
+                        <p class="journey-desc">A citizen reports an issue in natural language.</p>
+                    </div>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-num">2</div>
+                    <div>
+                        <h3 class="journey-title">AI Analysis</h3>
+                        <p class="journey-desc">NLP cleans the text, extracts keywords, and evaluates urgency and sentiment.</p>
+                    </div>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-num">3</div>
+                    <div>
+                        <h3 class="journey-title">Smart Routing</h3>
+                        <p class="journey-desc">The AI automatically categorizes the issue and routes it to the correct civic department.</p>
+                    </div>
+                </div>
+                <div class="journey-step">
+                    <div class="journey-num">4</div>
+                    <div>
+                        <h3 class="journey-title">Tracking & Resolution</h3>
+                        <p class="journey-desc">Administrators view a prioritized dashboard, act on the complaint, and track its status to resolution.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" style="background:var(--bg-elevated);border-radius:1rem;padding-top:4rem;padding-bottom:4rem" id="ai-insights">
+            <div class="section-header">
+                <div class="section-eyebrow">Intelligent Processing</div>
+                <h2 class="section-title">AI Insights</h2>
+                <p class="section-sub">Experience how the NLP engine evaluates real-world grievances to extract actionable data.</p>
+            </div>
+            <div class="feature-grid">
+                <div class="analysis-panel" style="background:var(--bg-surface)">
+                    <div class="text-xs font-bold text-muted uppercase tracking-wider mb-2">Issue Preview</div>
+                    <p class="text-sm italic mb-3">"The streetlight on 5th Avenue has been broken for two weeks, making it extremely unsafe to walk at night."</p>
+                    <div class="divider"></div>
+                    <div class="analysis-row">
+                        <span class="analysis-key">Category</span>
+                        <span class="analysis-val font-semibold">Streetlights</span>
+                    </div>
+                    <div class="analysis-row">
+                        <span class="analysis-key">Priority</span>
+                        <span class="analysis-val"><span class="badge badge-high"><span class="badge-dot"></span>High</span></span>
+                    </div>
+                    <div class="analysis-row">
+                        <span class="analysis-key">Sentiment</span>
+                        <span class="analysis-val"><span class="badge badge-negative"><span class="badge-dot"></span>Negative</span></span>
+                    </div>
+                    <div class="analysis-row" style="border-bottom:none">
+                        <span class="analysis-key">Keywords</span>
+                        <div class="keywords-list mt-0"><span class="keyword-tag">broken</span> <span class="keyword-tag">unsafe</span> <span class="keyword-tag">night</span></div>
+                    </div>
+                </div>
+                
+                <div class="analysis-panel" style="background:var(--bg-surface)">
+                    <div class="text-xs font-bold text-muted uppercase tracking-wider mb-2">Issue Preview</div>
+                    <p class="text-sm italic mb-3">"Garbage hasn't been collected in our neighborhood today, starting to smell."</p>
+                    <div class="divider"></div>
+                    <div class="analysis-row">
+                        <span class="analysis-key">Category</span>
+                        <span class="analysis-val font-semibold">Sanitation</span>
+                    </div>
+                    <div class="analysis-row">
+                        <span class="analysis-key">Priority</span>
+                        <span class="analysis-val"><span class="badge badge-medium"><span class="badge-dot"></span>Medium</span></span>
+                    </div>
+                    <div class="analysis-row">
+                        <span class="analysis-key">Sentiment</span>
+                        <span class="analysis-val"><span class="badge badge-negative"><span class="badge-dot"></span>Negative</span></span>
+                    </div>
+                    <div class="analysis-row" style="border-bottom:none">
+                        <span class="analysis-key">Keywords</span>
+                        <div class="keywords-list mt-0"><span class="keyword-tag">garbage</span> <span class="keyword-tag">collected</span> <span class="keyword-tag">smell</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <div class="ai-transparency">
+                <div class="flex" style="align-items:center;gap:1rem;margin-bottom:1rem">
+                    <div style="width:3rem;height:3rem;border-radius:50%;background:var(--color-brand);color:#fff;display:flex;align-items:center;justify-content:center">
+                        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                    </div>
+                    <div>
+                        <h3 style="margin:0;font-size:1.25rem;font-weight:700">Committed to Explainable AI</h3>
+                    </div>
+                </div>
+                <p style="margin:0;color:var(--text-secondary);font-size:1rem;line-height:1.6">
+                    We believe civic algorithms should be transparent. CivicVoice AI doesn't hide behind a black box. Every decision—from routing to prioritizing—is backed by visible keyword matching and sentiment indicators, ensuring administrators always understand <em>why</em> the AI made a choice.
+                </p>
+            </div>
+        </section>
+
+        <section class="section" id="civic-impact">
+            <div class="section-header">
+                <div class="section-eyebrow">Real-World Results</div>
+                <h2 class="section-title">Civic Impact</h2>
+                <p class="section-sub">A transparent view of governance in action.</p>
+            </div>
+            
+            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem">
+                <div class="card" style="text-align:center;padding:2rem">
+                    <div style="font-size:3rem;font-weight:800;color:var(--color-brand);line-height:1">100%</div>
+                    <div style="font-size:0.875rem;font-weight:600;color:var(--text-secondary);margin-top:0.5rem">Complaints Categorized Automatically</div>
+                </div>
+                <div class="card" style="text-align:center;padding:2rem">
+                    <div style="font-size:3rem;font-weight:800;color:var(--color-success);line-height:1">24/7</div>
+                    <div style="font-size:0.875rem;font-weight:600;color:var(--text-secondary);margin-top:0.5rem">Availability for Submissions</div>
+                </div>
+                <div class="card" style="text-align:center;padding:2rem">
+                    <div style="font-size:3rem;font-weight:800;color:var(--color-danger);line-height:1">0</div>
+                    <div style="font-size:0.875rem;font-weight:600;color:var(--text-secondary);margin-top:0.5rem">Black-Box Decisions</div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section" id="faq">
+            <div class="section-header">
+                <h2 class="section-title">Frequently Asked Questions</h2>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        How does the AI categorize complaints?
+                        <svg class="faq-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="faq-answer">Our NLP engine extracts keywords and matches them against department ontologies. For example, "pothole" routes to Roads, while "leak" routes to Water Supply. This ensures complaints always reach the correct authority.</div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Is my personal information required?
+                        <svg class="faq-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="faq-answer">No, you can submit issues anonymously. Contact details are optional and only used if the responding department needs clarification regarding the exact location or nature of the issue.</div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        How is priority determined?
+                        <svg class="faq-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div class="faq-answer">The AI scans for urgency indicators (e.g., "dangerous," "urgent," "accident") combined with negative sentiment analysis to automatically escalate critical issues to High Priority.</div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section" style="background:var(--bg-elevated);border-radius:1rem">
+            <div class="section-header">
+                <h2 class="section-title">Trust & Privacy</h2>
+            </div>
+            <div class="trust-grid">
+                <div class="trust-card">
+                    <div class="trust-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg></div>
+                    <div>
+                        <h3 class="trust-title">Data Security</h3>
+                        <p class="trust-desc">Complaints are securely processed and stored. Personal info is optional.</p>
+                    </div>
+                </div>
+                <div class="trust-card">
+                    <div class="trust-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
+                    <div>
+                        <h3 class="trust-title">Audit Trail</h3>
+                        <p class="trust-desc">Every AI classification is logged with explainable indicators for review.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <h2 class="cta-title">Ready to Report an Issue?</h2>
+            <p class="cta-desc">Help us keep the city safe and clean. Submit a grievance and let our AI route it to the right department instantly.</p>
+            <button class="btn btn-outline-white btn-lg" onclick="CivicApp.showView('submit')">File a Complaint</button>
+        </section>
+
+        <footer class="landing-footer">
+            &copy; 2026 CivicVoice AI. A Civic-Tech Platform.
+        </footer>
+    </div>
+
+    <div id="app-shell" class="app-shell hidden">
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-name">CivicVoice <span>AI</span></div>
+                <div class="sidebar-tagline">Smart Public Grievance</div>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-btn" data-view="dashboard">
+                    <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                    Dashboard
+                </button>
+                <button class="nav-btn" data-view="complaints">
+                    <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    Complaints
+                </button>
+                <button class="nav-btn" data-view="profile">
+                    <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    Profile
+                </button>
+                <div class="nav-section-label">Citizen Action</div>
+                <button class="nav-btn" data-view="submit">
+                    <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                    New Complaint
+                </button>
+                <div class="nav-section-label">General</div>
+                <button class="nav-btn" data-view="landing">
+                    <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    Landing Page
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="demo-badge">Admin Mode Active</div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button id="mobile-menu-toggle" class="btn-ghost btn-icon" style="display:none" aria-label="Toggle Menu">
+                        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
+                    <h1 class="page-title">CivicVoice AI</h1>
+                </div>
+                <div class="topbar-right">
+                    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+                        <svg id="icon-sun" class="hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                        <svg id="icon-moon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                    </button>
+                </div>
+            </header>
+
+            <div id="view-dashboard" class="view page-body hidden">
+                <div class="flex" style="justify-content:space-between;align-items:flex-end;margin-bottom:1.5rem">
+                    <div>
+                        <h2 class="section-title" style="margin:0;font-size:1.5rem">Overview</h2>
+                        <p class="text-secondary mt-1">Real-time civic complaint statistics.</p>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" onclick="CivicDashboard.load()">Refresh</button>
+                </div>
+
+                <div id="dashboard-mode-banner" class="alert alert-warning hidden" style="margin-bottom:1.5rem">
+                    <svg style="width:1.25rem;height:1.25rem" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <span>Backend unavailable. Displaying offline demo statistics.</span>
+                </div>
+
+                <div id="kpi-grid" class="grid grid-kpi mb-4"></div>
+
+                <div class="grid grid-charts mb-4">
+                    <div class="card">
+                        <h3 class="card-title">Complaints by Department</h3>
+                        <div style="height:240px"><canvas id="chart-dept"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <h3 class="card-title">Overall Sentiment</h3>
+                        <div style="height:240px"><canvas id="chart-sentiment"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="grid mb-4" style="grid-template-columns: repeat(3, minmax(0, 1fr));gap:1.25rem">
+                    <div class="card">
+                        <h3 class="card-title">Priority Breakdown</h3>
+                        <div style="height:200px"><canvas id="chart-priority"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <h3 class="card-title">Status Breakdown</h3>
+                        <div style="height:200px"><canvas id="chart-status"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <h3 class="card-title" style="display:flex;align-items:center;gap:0.5rem">
+                            <svg style="width:1.25rem;height:1.25rem;color:var(--color-brand)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            AI Insights
+                        </h3>
+                        <div id="insights-panel" class="space-y" style="font-size:0.875rem;color:var(--text-secondary)"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="flex" style="justify-content:space-between;align-items:center;margin-bottom:1rem">
+                        <h3 class="card-title" style="margin:0">Recent Complaints</h3>
+                        <button class="btn btn-ghost btn-sm" onclick="CivicApp.showView('complaints')">View All</button>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title/Description</th>
+                                    <th>Department</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-table"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-complaints" class="view page-body hidden">
+                <div class="flex" style="justify-content:space-between;align-items:flex-end;margin-bottom:1.5rem">
+                    <div>
+                        <h2 class="section-title" style="margin:0;font-size:1.5rem">Complaints</h2>
+                        <p class="text-secondary mt-1">Manage and filter all civic issues.</p>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="CivicApp.showView('submit')">New Complaint</button>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="filter-bar">
+                        <div style="flex:1;min-width:200px">
+                            <input type="text" id="search" class="form-field" placeholder="Search ID, keyword, or description...">
+                        </div>
+                        <select id="filter-dept" class="form-field" style="width:auto;min-width:160px">
+                            <option value="">All Departments</option>
+                        </select>
+                        <select id="filter-priority" class="form-field" style="width:auto;min-width:140px">
+                            <option value="">All Priorities</option>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                        <select id="filter-status" class="form-field" style="width:auto;min-width:140px">
+                            <option value="">All Statuses</option>
+                            <option value="Pending">Pending</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Resolved">Resolved</option>
+                        </select>
+                        <button class="btn btn-ghost btn-icon" onclick="CivicComplaints.clearFilters()" title="Clear Filters">
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card table-wrap" style="display:block">
+                    <style>@media(max-width:767px){#desktop-table-card{display:none !important;}}</style>
+                    <table id="desktop-table-card">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title/Description</th>
+                                <th>Department</th>
+                                <th>Priority</th>
+                                <th>Sentiment</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="complaints-table"></tbody>
+                    </table>
+                </div>
+
+                <div id="complaints-mobile" class="space-y hidden-desktop" style="margin-top:1rem">
+                    <style>@media(min-width:768px){.hidden-desktop{display:none !important;}}</style>
+                </div>
+
+                <div id="pagination-container" class="mt-4 flex" style="justify-content:space-between;align-items:center;flex-wrap:wrap"></div>
+            </div>
+
+            <div id="view-submit" class="view page-body hidden">
+                <div style="max-width:800px;margin:0 auto">
+                    <h2 class="section-title" style="margin-bottom:0.5rem;font-size:1.5rem">Report an Issue</h2>
+                    <p class="text-secondary mb-4">Submit a civic grievance. Our AI will automatically categorize and prioritize it.</p>
+
+                    <form id="complaint-form" class="card space-y">
+                        <div class="form-group">
+                            <label class="form-label" for="submit-title">Title <span class="required">*</span></label>
+                            <input type="text" id="submit-title" name="title" class="form-field" placeholder="Brief summary of the issue (e.g., Deep pothole on Main St)" required maxlength="100">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="submit-text">Description <span class="required">*</span></label>
+                            <textarea id="submit-text" name="text" class="form-field" rows="4" placeholder="Describe the issue in detail..." required maxlength="2000"></textarea>
+                            <div class="flex" style="justify-content:space-between">
+                                <span class="field-hint">Include specific details for better AI categorization.</span>
+                                <span id="char-count" class="char-count">0/2000</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="submit-location">Location <span class="required">*</span></label>
+                            <input type="text" id="submit-location" name="location" class="form-field" placeholder="E.g., 4th Cross, MG Road, near Central Bank" required>
+                        </div>
+
+                        <div class="grid grid-2">
+                            <div class="form-group">
+                                <label class="form-label" for="submit-name">Your Name (Optional)</label>
+                                <input type="text" id="submit-name" name="citizenName" class="form-field" placeholder="Jane Doe">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="submit-contact">Contact Number (Optional)</label>
+                                <input type="tel" id="submit-contact" name="contact" class="form-field" placeholder="+1 (555) 000-0000">
+                            </div>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <div class="flex" style="justify-content:flex-end;gap:1rem">
+                            <button type="reset" class="btn btn-ghost">Clear</button>
+                            <button type="submit" class="btn btn-primary" style="min-width:140px;justify-content:center">Submit Complaint</button>
+                        </div>
+                    </form>
+
+                    <div id="analysis-result" class="hidden" style="margin-top:2rem"></div>
+                </div>
+            </div>
+
+            <div id="view-profile" class="view page-body hidden">
+                <div style="max-width:800px;margin:0 auto">
+                    <h2 class="section-title" style="margin-bottom:0.5rem;font-size:1.5rem">My Profile</h2>
+                    <p class="text-secondary mb-4">Manage your account details and verification status.</p>
+
+                    <div class="card mb-4">
+                        <h3 class="card-title">Identity Verification</h3>
+                        <p class="text-secondary" style="font-size:0.875rem;margin-bottom:1.5rem">Verify your identity using India's official DigiLocker service. A verified badge builds trust and helps authorities prioritize your civic issues.</p>
+                        
+                        <div id="digilocker-status-container" style="display:flex; align-items:center; gap:1rem; padding:1.25rem; background:var(--bg-elevated); border-radius:0.5rem; border:1px solid var(--border-default)">
+                            <!-- Dynamic Content Rendered by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="modal-complaint" class="modal-backdrop hidden" aria-hidden="true">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <div class="modal-header">
+                <h3 id="modal-title" class="modal-title">Complaint Details</h3>
+                <button class="btn-ghost btn-icon" onclick="CivicModal.close('modal-complaint')" aria-label="Close modal">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div id="modal-complaint-content" class="modal-body"></div>
+        </div>
+    </div>
+    
+    <button id="scroll-to-top" class="scroll-top" aria-label="Scroll to top">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+    </button>
+
+    <script src="js/config.js"></script>
+    <script>
+        window.DEMO_COMPLAINTS = [
+            { id: 'CMP-1001', title: 'Massive pothole on highway', text: 'There is a huge, dangerous pothole causing accidents near the school. Extremely unsafe and needs urgent repair!', department: 'Roads', aiDepartment: 'Roads', priority: 'High', sentiment: 'Negative', status: 'Pending', createdAt: new Date(Date.now() - 1000000).toISOString(), matchedKeywords: ['pothole', 'accident', 'danger', 'school'], summary: 'There is a huge, dangerous pothole causing...', citizenName: 'Rahul Sharma', verified: true },
+            { id: 'CMP-1002', title: 'No water supply for 3 days', text: 'We have not received any water supply in Sector 4 for three days. Please resolve immediately.', department: 'Water Supply', aiDepartment: 'Water Supply', priority: 'High', sentiment: 'Negative', status: 'In Progress', createdAt: new Date(Date.now() - 86400000 * 2).toISOString(), matchedKeywords: ['water supply', 'no water'], summary: 'We have not received any water supply...' },
+            { id: 'CMP-1003', title: 'Streetlight fixed, thanks', text: 'Thank you for fixing the streetlight promptly. Great work by the department.', department: 'Streetlights', aiDepartment: 'Streetlights', priority: 'Low', sentiment: 'Positive', status: 'Resolved', createdAt: new Date(Date.now() - 86400000 * 5).toISOString(), matchedKeywords: ['streetlight'], summary: 'Thank you for fixing the streetlight promptly...' },
+            { id: 'CMP-1004', title: 'Garbage dump overflowing', text: 'The solid waste bin is overflowing and smells terrible. It is a hygiene issue.', department: 'Garbage/Waste Management', aiDepartment: 'Garbage/Waste Management', priority: 'Medium', sentiment: 'Negative', status: 'Pending', createdAt: new Date(Date.now() - 86400000 * 1).toISOString(), matchedKeywords: ['garbage', 'waste', 'overflowing'], summary: 'The solid waste bin is overflowing and...' },
+            { id: 'CMP-1005', title: 'Power cut', text: 'Electricity wire snapped near the transformer. Power is out.', department: 'Electricity', aiDepartment: 'Electricity', priority: 'High', sentiment: 'Negative', status: 'In Progress', createdAt: new Date(Date.now() - 86400000 * 0.5).toISOString(), matchedKeywords: ['electricity', 'wire', 'transformer'], summary: 'Electricity wire snapped near the transformer. Power...' }
+        ];
+    </script>
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/digilocker.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/complaints.js"></script>
+    <script src="js/submit.js"></script>
+    <script src="js/app.js"></script>
+    
+    <script>
+        // Smooth scrolling for landing page nav
+        document.querySelectorAll('button[data-scrollto]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = document.querySelector(btn.dataset.scrollto);
+                if(target) target.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+        
+        // Scroll to top button
+        const scrollTopBtn = document.getElementById('scroll-to-top');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+        });
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        
+        // Setup landing page theme toggle
+        const landingThemeToggle = document.getElementById('theme-toggle-landing');
+        if (landingThemeToggle) {
+            landingThemeToggle.addEventListener('click', () => {
+                CivicTheme.toggle();
+                updateLandingThemeIcon();
+            });
+            // Init icon state
+            updateLandingThemeIcon();
+        }
+        
+        function updateLandingThemeIcon() {
+            const theme = document.documentElement.getAttribute('data-theme') || 'light';
+            const sun = document.getElementById('icon-sun-landing');
+            const moon = document.getElementById('icon-moon-landing');
+            if(sun && moon) {
+                if(theme === 'dark') {
+                    sun.classList.remove('hidden');
+                    moon.classList.add('hidden');
+                } else {
+                    moon.classList.remove('hidden');
+                    sun.classList.add('hidden');
+                }
+            }
+        }
+        
+        // Override CivicTheme toggle to also update landing icon
+        const originalToggle = CivicTheme.toggle;
+        CivicTheme.toggle = function() {
+            originalToggle.call(this);
+            updateLandingThemeIcon();
+        }
+        // FAQ toggle logic
+        document.querySelectorAll('.faq-question').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const item = btn.closest('.faq-item');
+                const wasOpen = item.classList.contains('open');
+                // Close all others
+                document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+                if (!wasOpen) item.classList.add('open');
+            });
+        });
+    </script>
+
+    <style>
+        @media (max-width: 1023px) {
+            .topbar-left #mobile-menu-toggle { display: block !important; }
+        }
+        @media (max-width: 767px) {
+            .grid[style*="repeat(3"] { grid-template-columns: 1fr !important; }
+        }
+    </style>
+</body>
+</html>

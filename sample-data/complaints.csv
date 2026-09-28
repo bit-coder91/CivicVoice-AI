@@ -1,0 +1,4 @@
+id,text,department,sentiment,priority,status,location,createdAt
+CV-1001,"Large potholes on the main road are causing accidents near the school.",Roads,Negative,High,Pending,"Ward 4",2026-08-25
+CV-1002,"Water leakage has continued for three days outside our building.",Water Supply,Negative,High,"In Progress","Ward 2",2026-08-24
+CV-1003,"Garbage collection is regular now. Thank you for the improvement.",Garbage/Waste Management,Positive,Low,Resolved,"Ward 1",2026-08-23
