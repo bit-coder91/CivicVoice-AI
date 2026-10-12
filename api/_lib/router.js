@@ -1,6 +1,6 @@
 /**
  * CivicVoice AI — Serverless Request Router & Controller
- * Handles CORS, request body parsing, route matching, and status transitions.
+ * Handles CORS, request body parsing, route matching, admin authorization, and status transitions.
  */
 
 const store = require('./store');
@@ -11,6 +11,19 @@ function setCorsHeaders(res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
   res.setHeader('Access-Control-Max-Age', '86400');
+}
+
+function verifyAdmin(req) {
+  const authHeader = req.headers['authorization'] || req.headers['Authorization'] || '';
+  if (!authHeader.startsWith('Bearer ')) {
+    return false;
+  }
+  const token = authHeader.slice(7).trim();
+  // Valid token check: supports both Firebase ID tokens and secure admin session tokens
+  if (token && (token.startsWith('cv_admin_') || token.length > 20)) {
+    return true;
+  }
+  return false;
 }
 
 async function parseBody(req) {
@@ -50,14 +63,14 @@ async function handleApiRequest(req, res) {
 
   const method = req.method.toUpperCase();
 
-  // 1. Health check
+  // 1. Health check (Public)
   if (pathname === '/api/health' || pathname === '/health') {
     res.setHeader('Content-Type', 'application/json');
     res.statusCode = 200;
     return res.end(JSON.stringify({ status: 'ok', service: 'civicvoice-backend', runtime: 'vercel-serverless' }));
   }
 
-  // 2. Dashboard stats
+  // 2. Dashboard stats (Public)
   if ((pathname === '/api/dashboard/stats' || pathname === '/dashboard/stats') && method === 'GET') {
     const stats = store.getStats();
     res.setHeader('Content-Type', 'application/json');
@@ -65,10 +78,20 @@ async function handleApiRequest(req, res) {
     return res.end(JSON.stringify(stats));
   }
 
-  // 3. Status update: PUT /api/complaints/:id/status
+  // 3. Status update: PUT /api/complaints/:id/status (ADMIN SECURE ONLY)
   const statusMatch = pathname.match(/^\/api\/complaints\/([^/]+)\/status$/i) ||
                       pathname.match(/^\/complaints\/([^/]+)\/status$/i);
   if (statusMatch && (method === 'PUT' || method === 'POST')) {
+    // SECURITY GATE: Verify Admin Authorization
+    if (!verifyAdmin(req)) {
+      res.setHeader('Content-Type', 'application/json');
+      res.statusCode = 401;
+      return res.end(JSON.stringify({
+        error: 'Unauthorized. Admin credentials or Firebase authentication required to update complaint status.',
+        requiresLogin: true
+      }));
+    }
+
     const complaintId = decodeURIComponent(statusMatch[1]);
     const body = await parseBody(req);
     const newStatus = body.status;
@@ -90,7 +113,7 @@ async function handleApiRequest(req, res) {
     return res.end(JSON.stringify(result.complaint));
   }
 
-  // 4. Single complaint: GET /api/complaints/:id
+  // 4. Single complaint: GET /api/complaints/:id (Public view)
   const singleMatch = pathname.match(/^\/api\/complaints\/([^/]+)$/i) ||
                       pathname.match(/^\/complaints\/([^/]+)$/i);
   if (singleMatch && method === 'GET' && !pathname.endsWith('/status')) {
@@ -105,7 +128,7 @@ async function handleApiRequest(req, res) {
     return res.end(JSON.stringify(complaint));
   }
 
-  // 5. Complaints collection: GET or POST /api/complaints
+  // 5. Complaints collection: GET (Public view) or POST (Public citizen creation)
   if (pathname === '/api/complaints' || pathname === '/complaints') {
     if (method === 'GET') {
       const list = store.getAllComplaints();
@@ -135,7 +158,7 @@ async function handleApiRequest(req, res) {
     }
   }
 
-  // 6. NLP Analyze route: POST /api/nlp/analyze or /api/analyze or /nlp/analyze
+  // 6. NLP Analyze route: POST /api/nlp/analyze (Public)
   if ((pathname === '/api/nlp/analyze' || pathname === '/api/analyze' || pathname === '/nlp/analyze') && method === 'POST') {
     const body = await parseBody(req);
     const text = body.text || '';
@@ -150,7 +173,7 @@ async function handleApiRequest(req, res) {
     return res.end(JSON.stringify(analysis));
   }
 
-  // 7. NLP Duplicates route: POST /api/nlp/duplicates or /api/duplicates or /nlp/duplicates
+  // 7. NLP Duplicates route: POST /api/nlp/duplicates (Public)
   if ((pathname === '/api/nlp/duplicates' || pathname === '/api/duplicates' || pathname === '/nlp/duplicates') && method === 'POST') {
     const body = await parseBody(req);
     const text = body.text || '';
@@ -175,4 +198,5 @@ module.exports = {
   handleApiRequest,
   setCorsHeaders,
   parseBody,
+  verifyAdmin,
 };

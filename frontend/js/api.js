@@ -1,15 +1,26 @@
 /**
  * CivicVoice AI — API Layer
- * All communication with the Spring Boot backend.
+ * Communicates with the Vercel Serverless / Spring Boot backend.
+ * Automatically attaches Admin Firebase Auth Token for protected operations.
  */
 
 const API_BASE = window.CIVIC_API_BASE || 'http://localhost:8080/api';
 
 async function apiFetch(path, options = {}) {
   const url = `${API_BASE}${path}`;
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(options.headers || {})
+  };
+
+  // Attach Firebase Authorization token if logged in
+  if (window.CivicAuth && CivicAuth.idToken) {
+    headers['Authorization'] = `Bearer ${CivicAuth.idToken}`;
+  }
+
   const res = await fetch(url, {
-    headers: { 'Content-Type': 'application/json' },
     ...options,
+    headers,
   });
 
   let data;

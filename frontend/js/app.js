@@ -54,6 +54,41 @@ window.CivicApp = {
       });
     });
 
+    // Login Form Submit handler
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email')?.value;
+        const pass = document.getElementById('login-password')?.value;
+        const errBox = document.getElementById('login-error');
+        const submitBtn = document.getElementById('btn-login-submit');
+
+        if (errBox) errBox.classList.add('hidden');
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<span class="spinner" style="width:1rem;height:1rem"></span> Signing in...';
+        }
+
+        try {
+          await CivicAuth.login(email, pass);
+          CivicModal.close('modal-login');
+          CivicToast.show('Welcome, Administrator! Full update access granted.', 'success');
+          loginForm.reset();
+        } catch (err) {
+          if (errBox) {
+            errBox.textContent = err.message || 'Login failed';
+            errBox.classList.remove('hidden');
+          }
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Sign In to Console';
+          }
+        }
+      });
+    }
+
     this.showView('landing');
   },
 
@@ -78,6 +113,17 @@ window.CivicApp = {
     window.scrollTo(0, 0);
   },
 
+  openLoginModal() {
+    const errBox = document.getElementById('login-error');
+    if (errBox) errBox.classList.add('hidden');
+    CivicModal.open('modal-login');
+  },
+
+  handleLogout() {
+    CivicAuth.logout();
+    CivicToast.show('Switched back to Public Citizen View.', 'info');
+  },
+
   async viewComplaint(id) {
     CivicModal.open('modal-complaint');
     const content = document.getElementById('modal-complaint-content');
@@ -100,6 +146,12 @@ window.CivicApp = {
   },
 
   async updateComplaintStatus(id, selectId) {
+    if (!CivicAuth.isAdmin()) {
+      CivicToast.show('Admin login required to update complaint status.', 'warning');
+      this.openLoginModal();
+      return;
+    }
+
     const select = document.getElementById(selectId);
     if (!select) return;
     const status = select.value;
@@ -129,7 +181,12 @@ window.CivicApp = {
       }
       this.viewComplaint(id);
     } catch (err) {
-      CivicToast.show(err.message || 'Failed to update status', 'error');
+      if (err.status === 401 || err.requiresLogin) {
+        CivicToast.show('Session expired or unauthorized. Please sign in as admin.', 'error');
+        this.openLoginModal();
+      } else {
+        CivicToast.show(err.message || 'Failed to update status', 'error');
+      }
       if (btn) { btn.disabled = false; btn.innerHTML = 'Update'; }
     }
   },
@@ -142,6 +199,41 @@ window.CivicApp = {
 
     const aging = CivicDate.agingStatus(c.createdAt, c.status);
     const agingHtml = aging ? `<span class="badge ${aging.cls}">${aging.label}</span>` : '';
+    const isAdmin = CivicAuth.isAdmin();
+
+    // Differentiate Public View vs Admin View
+    const actionPanelHtml = isAdmin ? `
+      <div class="card" style="border:1.5px solid var(--color-brand)">
+        <div class="flex" style="justify-content:space-between;align-items:center;margin-bottom:0.75rem">
+          <div class="text-xs font-bold uppercase tracking-wider" style="color:var(--color-brand)">👑 Admin Actions</div>
+          <span class="badge badge-low text-xs">Full Access</span>
+        </div>
+        <label class="form-label mb-1" for="status-update-${c.id}">Change Status</label>
+        <div class="flex gap-2">
+          <select id="status-update-${c.id}" class="form-field" style="flex:1;padding:0.375rem 0.5rem">
+            <option value="Pending" ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
+            <option value="In Progress" ${c.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+            <option value="Resolved" ${c.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
+          </select>
+          <button id="btn-update-status" class="btn btn-primary btn-sm" onclick="CivicApp.updateComplaintStatus('${c.id}', 'status-update-${c.id}')">Update</button>
+        </div>
+        <p class="text-xs text-muted mt-2" style="margin-bottom:0">Status updates instantly sync with the public registry and analytics dashboard.</p>
+      </div>
+    ` : `
+      <div class="card bg-elevated" style="border:1px dashed var(--border-default)">
+        <div class="flex" style="justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+          <div class="text-xs font-bold text-muted uppercase tracking-wider">Citizen View Mode</div>
+          <span class="badge text-xs" style="background:var(--bg-surface);color:var(--text-secondary)">Read-Only</span>
+        </div>
+        <div class="text-sm text-secondary mb-3">
+          Status transitions can only be authorized by municipal officers.
+        </div>
+        <button class="btn btn-secondary btn-sm w-full" onclick="CivicApp.openLoginModal()">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+          Admin Login to Update
+        </button>
+      </div>
+    `;
 
     container.innerHTML = `
       <div class="grid sm:grid-cols-3 gap-6">
@@ -160,7 +252,7 @@ window.CivicApp = {
             <p style="font-size:0.9375rem;line-height:1.6;margin:0;color:var(--text-primary)">${c.text}</p>
           </div>
 
-          <div class="grid grid-2">
+          <div class="grid grid-2 gap-4">
             <div>
               <div class="text-xs font-bold text-muted uppercase tracking-wider mb-1">Location</div>
               <div class="font-medium text-sm">${c.location || '—'}</div>
@@ -250,18 +342,7 @@ window.CivicApp = {
             </div>
           </div>
 
-          <div class="card">
-            <div class="text-xs font-bold text-muted uppercase tracking-wider mb-3">Admin Actions</div>
-            <label class="form-label mb-1" for="status-update-${c.id}">Update Status</label>
-            <div class="flex gap-2">
-              <select id="status-update-${c.id}" class="form-field" style="flex:1;padding:0.375rem 0.5rem">
-                <option value="Pending" ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                <option value="In Progress" ${c.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
-                <option value="Resolved" ${c.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
-              </select>
-              <button id="btn-update-status" class="btn btn-secondary btn-sm" onclick="CivicApp.updateComplaintStatus('${c.id}', 'status-update-${c.id}')">Update</button>
-            </div>
-          </div>
+          ${actionPanelHtml}
         </div>
       </div>
     `;

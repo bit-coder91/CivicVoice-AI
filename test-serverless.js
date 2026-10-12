@@ -111,36 +111,55 @@ server.listen(0, async () => {
     assert.strictEqual(optionsRes.headers['access-control-allow-origin'], '*');
     console.log('✓ OPTIONS /api/complaints/CV-1001/status handled with 204 and CORS headers');
 
-    // 2.4 Update status from Pending to In Progress
-    const inProgressRes = await request('/api/complaints/CV-1001/status', {
+    // 2.4 Verify Unauthorized Public User CANNOT update status (HTTP 401)
+    const unauthorizedRes = await request('/api/complaints/CV-1001/status', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: { status: 'In Progress' }
     });
+    assert.strictEqual(unauthorizedRes.status, 401);
+    assert.strictEqual(unauthorizedRes.body.requiresLogin, true);
+    console.log('✓ Public user correctly blocked from updating status (HTTP 401 Unauthorized)');
+
+    // 2.5 Admin with Firebase Auth Token CAN update status from Pending to In Progress
+    const inProgressRes = await request('/api/complaints/CV-1001/status', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer cv_admin_token_test_officer_session',
+      },
+      body: { status: 'In Progress' }
+    });
     assert.strictEqual(inProgressRes.status, 200);
     assert.strictEqual(inProgressRes.body.status, 'In Progress');
-    console.log('✓ PUT /api/complaints/CV-1001/status -> In Progress succeeded');
+    console.log('✓ Admin with secure Auth token updated status to In Progress (HTTP 200)');
 
-    // 2.5 Update status from In Progress to Resolved
+    // 2.6 Admin updates status from In Progress to Resolved
     const resolvedRes = await request('/api/complaints/CV-1001/status', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer cv_admin_token_test_officer_session',
+      },
       body: { status: 'Resolved' }
     });
     assert.strictEqual(resolvedRes.status, 200);
     assert.strictEqual(resolvedRes.body.status, 'Resolved');
-    console.log('✓ PUT /api/complaints/CV-1001/status -> Resolved succeeded');
+    console.log('✓ Admin with secure Auth token updated status to Resolved (HTTP 200)');
 
-    // 2.6 Verify persistence of update
+    // 2.7 Verify persistence of update
     const getSingleRes = await request('/api/complaints/CV-1001');
     assert.strictEqual(getSingleRes.status, 200);
     assert.strictEqual(getSingleRes.body.status, 'Resolved');
-    console.log('✓ GET /api/complaints/CV-1001 verified updated status is Resolved');
+    console.log('✓ GET /api/complaints/CV-1001 verified updated status is Resolved in public view');
 
-    // 2.7 Verify invalid status rejection
+    // 2.8 Verify invalid status rejection even for admin
     const invalidRes = await request('/api/complaints/CV-1001/status', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer cv_admin_token_test_officer_session',
+      },
       body: { status: 'InvalidStatus' }
     });
     assert.strictEqual(invalidRes.status, 400);

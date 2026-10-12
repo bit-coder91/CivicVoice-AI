@@ -72,6 +72,7 @@ window.CivicComplaints = {
 
     const start = (this._page - 1) * this._pageSize;
     const pageData = this._filtered.slice(start, start + this._pageSize);
+    const isAdmin = window.CivicAuth ? CivicAuth.isAdmin() : false;
 
     tbody.innerHTML = pageData.map(c => `
       <tr>
@@ -83,7 +84,9 @@ window.CivicComplaints = {
         <td>${CivicBadge.render(c.status)}</td>
         <td class="text-muted text-xs">${c.createdAt || '—'}</td>
         <td>
-          <button class="btn btn-secondary btn-sm" onclick="CivicApp.viewComplaint('${c.id}')">View</button>
+          <button class="btn ${isAdmin ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="CivicApp.viewComplaint('${c.id}')">
+            ${isAdmin ? 'Manage' : 'View'}
+          </button>
         </td>
       </tr>
     `).join('');
@@ -100,6 +103,7 @@ window.CivicComplaints = {
 
     const start = (this._page - 1) * this._pageSize;
     const pageData = this._filtered.slice(start, start + this._pageSize);
+    const isAdmin = window.CivicAuth ? CivicAuth.isAdmin() : false;
 
     container.innerHTML = pageData.map(c => `
       <div class="complaint-card-mobile">
@@ -116,7 +120,9 @@ window.CivicComplaints = {
         <div class="divider"></div>
         <div class="flex" style="justify-content:space-between;align-items:center">
           <span class="text-xs text-muted">${c.createdAt || ''}</span>
-          <button class="btn btn-secondary btn-sm" onclick="CivicApp.viewComplaint('${c.id}')">Details</button>
+          <button class="btn ${isAdmin ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="CivicApp.viewComplaint('${c.id}')">
+            ${isAdmin ? 'Manage Status' : 'Details'}
+          </button>
         </div>
       </div>
     `).join('');
@@ -129,41 +135,45 @@ window.CivicComplaints = {
     const totalPages = Math.ceil(this._filtered.length / this._pageSize);
     if (totalPages <= 1) { container.innerHTML = ''; return; }
 
-    let html = `<div class="pagination">`;
-    html += `<button class="page-btn" onclick="CivicComplaints.goToPage(${this._page - 1})" ${this._page === 1 ? 'disabled' : ''}>&laquo;</button>`;
+    const start = (this._page - 1) * this._pageSize + 1;
+    const end = Math.min(this._page * this._pageSize, this._filtered.length);
 
-    for (let i = 1; i <= totalPages; i++) {
-      if (totalPages > 5 && (i < this._page - 2 || i > this._page + 2)) {
-        if (i === 1 || i === totalPages) {
-        } else if (i === this._page - 3 || i === this._page + 3) {
-          html += `<span style="padding: 0 0.25rem; color: var(--text-muted)">...</span>`;
-          continue;
-        } else {
-          continue;
-        }
-      }
-      html += `<button class="page-btn ${this._page === i ? 'active' : ''}" onclick="CivicComplaints.goToPage(${i})">${i}</button>`;
-    }
-
-    html += `<button class="page-btn" onclick="CivicComplaints.goToPage(${this._page + 1})" ${this._page === totalPages ? 'disabled' : ''}>&raquo;</button>`;
-    html += `</div>`;
-    html += `<div class="text-xs text-muted mt-4">Showing ${((this._page - 1) * this._pageSize) + 1} to ${Math.min(this._page * this._pageSize, this._filtered.length)} of ${this._filtered.length} entries</div>`;
-
-    container.innerHTML = html;
+    container.innerHTML = `
+      <span class="text-sm text-secondary">Showing ${start}–${end} of ${this._filtered.length} complaints</span>
+      <div class="pagination">
+        <button class="btn btn-secondary btn-sm" ${this._page === 1 ? 'disabled' : ''} onclick="CivicComplaints.prevPage()">Previous</button>
+        <span class="page-indicator">Page ${this._page} of ${totalPages}</span>
+        <button class="btn btn-secondary btn-sm" ${this._page === totalPages ? 'disabled' : ''} onclick="CivicComplaints.nextPage()">Next</button>
+      </div>
+    `;
   },
 
-  goToPage(p) {
+  prevPage() {
+    if (this._page > 1) {
+      this._page--;
+      this.render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  },
+
+  nextPage() {
     const totalPages = Math.ceil(this._filtered.length / this._pageSize);
-    if (p < 1 || p > totalPages) return;
-    this._page = p;
-    this.render();
+    if (this._page < totalPages) {
+      this._page++;
+      this.render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   },
 
   clearFilters() {
-    ['search', 'filter-dept', 'filter-priority', 'filter-status'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.value = '';
-    });
+    const search = document.getElementById('search');
+    const dept = document.getElementById('filter-dept');
+    const priority = document.getElementById('filter-priority');
+    const status = document.getElementById('filter-status');
+    if (search) search.value = '';
+    if (dept) dept.value = '';
+    if (priority) priority.value = '';
+    if (status) status.value = '';
     this.applyFilters();
   }
 };
