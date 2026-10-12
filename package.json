@@ -4,6 +4,7 @@
   "description": "AI-Powered Civic Complaint Management & Redressal Platform deployed on Vercel",
   "private": true,
   "scripts": {
+    "build": "echo 'Build complete'",
     "test": "node test-serverless.js",
     "dev": "vercel dev",
     "start": "node -e \"require('http').createServer(require('./api/index')).listen(3000, () => console.log('Listening on http://localhost:3000'))\""

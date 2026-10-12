@@ -1,17 +1,19 @@
 {
-  "version": 2,
-  "buildCommand": "echo 'CivicVoice AI static frontend ready'",
   "outputDirectory": "frontend",
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "/api"
+      "source": "/api/complaints/:id/status",
+      "destination": "/api/complaints/status?id=:id"
+    },
+    {
+      "source": "/api/complaints/:id",
+      "destination": "/api/complaints/detail?id=:id"
     },
     {
       "source": "/nlp/:path*",
-      "destination": "/api"
+      "destination": "/api/nlp/:path*"
     }
   ],
   "headers": [
