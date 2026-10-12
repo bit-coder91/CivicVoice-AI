@@ -129,7 +129,7 @@ window.CivicApp = {
       }
       this.viewComplaint(id);
     } catch (err) {
-      CivicToast.show('Failed to update status', 'error');
+      CivicToast.show(err.message || 'Failed to update status', 'error');
       if (btn) { btn.disabled = false; btn.innerHTML = 'Update'; }
     }
   },

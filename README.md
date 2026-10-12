@@ -1,32 +1,32 @@
 # CivicVoice AI
 
-**AI-Assisted Public Grievance Management System**
+**AI-Assisted Public Grievance Management System — 100% Vercel-Native Serverless**
 
-CivicVoice AI is an intelligent civic tech platform that automates the categorization, prioritization, and routing of citizen complaints. By combining a modern web frontend with a Java Spring Boot backend and a Python Flask NLP engine, it drastically reduces manual sorting efforts and highlights urgent civic issues instantly.
+CivicVoice AI is an intelligent civic tech platform that automates the categorization, prioritization, and routing of citizen complaints. It can be deployed **entirely on Vercel** without needing any external servers or separate cloud providers for backend or NLP services.
 
 ---
 
 ## 🎯 Objectives
-- **Automated Routing:** Automatically route issues to correct departments (Roads, Water Supply, Electricity, etc.).
-- **Urgency Detection:** Identify and flag high-priority hazards (e.g., exposed wires, open manholes).
-- **Explainable AI:** Provide transparent reasoning (matched keywords, sentiment indicators) for every classification.
-- **Analytics:** Offer real-time insights into departmental performance and civic issue trends.
-
----
-
-## 🚀 Features
-- **Explainable NLP Pipeline:** Transparent keyword and sentiment analysis (No black-box ML).
-- **Professional Dashboard:** Real-time analytics with Chart.js.
-- **Modern UI/UX:** Semantic CSS variables, responsive design, dark mode, toast notifications, accessible forms.
-- **Admin Workflow:** Complaint tracking with chronological timelines and status updates.
+- **Automated Routing:** Automatically route issues to correct departments (Roads, Water Supply, Electricity, Garbage, Drainage, Streetlights, Sanitation).
+- **Urgency Detection:** Identify and flag high-priority hazards (e.g., exposed wires, open manholes, accidents).
+- **Explainable AI:** Provide transparent reasoning (matched keywords, sentiment indicators, priority reasons) for every classification.
+- **Real-Time Redressal Workflow:** Seamlessly update complaint status (`Pending` ➔ `In Progress` ➔ `Resolved`) with instant persistence and dashboard sync.
+- **Analytics:** Offer real-time insights into departmental performance and civic issue trends with Chart.js.
 
 ---
 
 ## 🏗️ Architecture & Tech Stack
 
-- **Frontend:** Vanilla HTML5, CSS3 (Custom Design System), JavaScript (Modular). Vercel-ready.
-- **Backend:** Java 21, Spring Boot 3 (REST API, Data Validation, Services).
-- **NLP Service:** Python 3.13, Flask, scikit-learn (TF-IDF), NLTK (Tokenization, Sentiment, Classification).
+### ⚡ 100% Vercel Deployment (Default & Recommended)
+- **Frontend:** Vanilla HTML5, CSS3 (Semantic Design System), Modern Modular JavaScript.
+- **Serverless API:** Node.js Vercel Serverless Functions (`/api/*`) with zero external dependencies for fast cold starts.
+- **Built-in NLP Pipeline:** Pure JavaScript NLP engine (`api/_lib/nlp.js`) with keyword classification, lexicon sentiment analysis, urgency prediction, summarization, and TF-IDF duplicate search.
+- **CORS & Status Updates:** Native preflight `OPTIONS` and `PUT` request handling with full CORS compliance.
+
+### 🏛️ Legacy Multi-Tier Mode (Optional)
+The repository also preserves the original microservice implementations for reference or enterprise multi-tier setups:
+- **Backend:** Java 21, Spring Boot 3 (`spring-backend/`)
+- **NLP Service:** Python 3.13, Flask, scikit-learn (`flask-nlp/`)
 
 ---
 
@@ -34,78 +34,77 @@ CivicVoice AI is an intelligent civic tech platform that automates the categoriz
 
 ```text
 CivicVoice-AI/
-├── frontend/             # Vanilla JS, CSS, HTML UI
-│   ├── css/style.css     # Semantic Design System
-│   ├── js/               # Modular logic (api.js, app.js, dashboard.js, etc.)
-│   └── index.html        # Single Page Application
-├── spring-backend/       # Java Spring Boot API
-│   └── src/main/java/com/civicvoice/
-│       ├── controller/   # REST Endpoints
-│       ├── model/        # Complaint entity
-│       ├── dto/          # Data Transfer Objects
-│       └── service/      # Business logic & external NLP calls
-├── flask-nlp/            # Python Flask NLP microservice
-│   ├── app.py            # Preprocessing, classification, sentiment
-│   └── requirements.txt  # Python dependencies
-└── docs/                 # Documentation & Guides
+├── api/                  # Vercel Serverless Functions (100% Vercel Deployment)
+│   ├── _lib/
+│   │   ├── nlp.js        # Pure JS NLP pipeline (classification, sentiment, priority, TF-IDF)
+│   │   ├── router.js     # Unified API router & CORS handler
+│   │   └── store.js      # In-memory complaint store with persistent /tmp cache
+│   ├── complaints/       # /api/complaints & dynamic /api/complaints/[id]/status
+│   ├── dashboard/        # /api/dashboard/stats
+│   ├── nlp/              # /api/nlp/analyze & /api/nlp/duplicates
+│   ├── health.js         # /api/health
+│   └── index.js          # Master Serverless entrypoint
+├── frontend/             # Single-Page Application (HTML5 / CSS / Vanilla JS)
+│   ├── css/style.css     # Semantic Design System with Dark Mode
+│   ├── js/               # Modular frontend scripts (api.js, app.js, dashboard.js, etc.)
+│   └── index.html        # App UI
+├── vercel.json           # Vercel routing, rewrites, and CORS headers
+├── package.json          # Serverless scripts & testing
+├── test-serverless.js    # Comprehensive serverless & NLP test suite
+├── spring-backend/       # (Optional) Java Spring Boot backend
+├── flask-nlp/            # (Optional) Python Flask NLP microservice
+└── docs/                 # Documentation & Architecture Guides
 ```
 
 ---
 
-## ⚙️ Local Setup
+## ☁️ Deploying to Vercel (One-Click / Zero Config)
 
-### 1. Flask NLP Service
+1. **Push to GitHub**:
+   ```bash
+   git add .
+   git commit -m "Configure 100% Vercel serverless deployment"
+   git push
+   ```
+
+2. **Deploy on Vercel**:
+   - Go to [vercel.com](https://vercel.com) and click **"Add New Project"**.
+   - Select this repository.
+   - Leave the **Root Directory** as `./` (the root).
+   - Click **Deploy**.
+
+Everything runs seamlessly on Vercel:
+- Static assets are served from `frontend/`.
+- All API calls (`/api/complaints`, `/api/complaints/:id/status`, `/api/dashboard/stats`, `/api/health`) are handled directly by Vercel Serverless Functions in `/api/`.
+- Preflight `OPTIONS` and `PUT` status transitions work with zero CORS errors on live servers.
+
+---
+
+## 🧪 Testing Locally
+
+To verify all serverless endpoints, NLP algorithms, and status update transitions:
+
 ```bash
-cd flask-nlp
-python -m venv .venv
-# Activate venv:
-# Windows: .venv\Scripts\activate
-# Mac/Linux: source .venv/bin/activate
-pip install -r requirements.txt
-python app.py
+# Run the test suite
+node test-serverless.js
 ```
-*Runs on `http://localhost:5001`*
 
-### 2. Spring Boot Backend
+To run the local development server:
 ```bash
-cd spring-backend
-# If maven wrapper exists:
-./mvnw spring-boot:run
-# Or use standard maven:
-mvn spring-boot:run
+# Using Vercel CLI
+npx vercel dev
+
+# Or run the serverless API directly
+npm start
 ```
-*Runs on `http://localhost:8080`*
-
-### 3. Frontend
-```bash
-cd frontend
-# Run a local HTTP server
-python -m http.server 5500
-```
-*Access at `http://localhost:5500`*
+Access the application at `http://localhost:3000`.
 
 ---
 
-## ☁️ Deployment (Vercel)
+## 🔄 Status Redressal Workflow
+Administrators or citizens can update complaint statuses live:
+- **Pending:** Default status when submitted.
+- **In Progress:** Work order initiated or assigned to department.
+- **Resolved:** Issue rectified with completion recorded.
 
-The frontend is pre-configured for Vercel deployment via `vercel.json`.
-1. Push this repository to GitHub.
-2. Import the project in Vercel.
-3. Set the **Root Directory** to `frontend`.
-4. Override the **Build Command** to empty (or `echo 'No build'`).
-5. Configure `vercel.json` rewrites to point `/api/*` to your production Spring Boot URL.
-
----
-
-## 📚 Documentation
-For detailed explanations, check the `docs/` folder:
-- [Project Explanation & Architecture](./docs/PROJECT_EXPLANATION.md)
-- [Testing Guide](./docs/TESTING.md)
-
----
-
-## 🔮 Future Scope
-- **PostgreSQL/MongoDB Integration:** Replace current in-memory/stubbed storage with a production relational database.
-- **Citizen Accounts:** JWT authentication for citizens to track their own complaints.
-- **Image Recognition (Computer Vision):** Validate uploaded complaint photos (e.g., verifying a pothole image).
-- **Advanced Duplicate Detection:** Use Sentence Transformers instead of TF-IDF for deep semantic matching.
+All status transitions update in real time in both the complaints list and dashboard KPI counters.
